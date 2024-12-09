@@ -1,0 +1,171 @@
+# filter and split level
+
+element = "payments/invoices/invoice"
+
+
+# filter
+
+[filter]
+residue = "RESIDUE"
+
+[filter.allowlist]
+"payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/ledger_code" = [
+    "Allow-this-ledger",
+]
+"payments/invoices/invoice/owner_entity/orgId" = [
+    "3210705901456789",
+    "3210613802456789",
+    # "321041220356789",
+]
+"payments/invoices/invoice/vendor_code" = [
+    "VC100-4INST-123",
+    "VC200-4INST-456",
+    "VC300-4INST-789",
+    "VEND-54321",
+    "VEND-98765",
+    "EX-FALSO-ABC",
+    "SEQUITUR-DEF",
+    "QUOD-LIBET-XYZ",
+]
+
+[filter.blocklist]
+"payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/code" = [
+    "FUND-123",
+    "FUND-456",
+    "XYZ-Example",
+    "YOU-NAME-IT",
+]
+"payments/invoices/invoice/payment_method" = [
+    "BLOCKEDMETHOD",
+]
+
+
+# split
+
+[split]
+declaration = true
+default = "DEFAULT"
+[split.grouping."payments/invoices/invoice/invoice_owner"]
+"Happy Owner" = "LIB001"
+[split.grouping."payments/invoices/invoice/owner_entity/orgId"]
+3210705901456789= "LIB001"
+3210613802456789 = "LIB023"
+# 321041220356789 = "LIB456"
+
+
+# transformations
+
+# Please note the following peculiarities of transformation rules:
+# ‒ All values (even those that are obviously numerical in nature) must be passed as character strings
+# ‒ The transformation value must be either a string literal that shall be inserted unchanged
+#   or a valid expression of the evalexpr scripting language as documented here:
+#   https://docs.rs/evalexpr/latest/evalexpr/
+# ‒ Only a subset of the evalexpr language is supported; in particular, tuples are not supported.
+
+[[transformations]] #1
+target = "payments/invoices/invoice/vat_info/vat_percentage"
+keep = true
+append_element = ""
+value = "if(p > 7.8, 8.1, if(p > 2.4, 2.6, 0.0))"
+[transformations.source.datafields]
+p = "payments/invoices/invoice/vat_info/vat_percentage"
+[transformations.source.literals]
+[transformations.parameters]
+decimal_places = "1"
+
+[[transformations]] #2
+target = "payments/invoices/invoice/invoice_lines/line/price"
+keep = true
+append_element = "net_price"
+value = "if(p > 7.8, btto / 1.081, if(p > 2.4, btto / 1.026, btto))"
+[transformations.source.datafields]
+p = "payments/invoices/invoice/vat_info/vat_percentage"
+btto = "payments/invoices/invoice/invoice_lines/line/price"
+[transformations.source.literals]
+[transformations.parameters]
+decimal_places = "2"
+
+[[transformations]] #3
+target = "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/amount/btto_sum"
+keep = true
+append_element = "net_sum"
+value = "if(p > 7.8, btto / 1.081, if(p > 2.4, btto / 1.026, btto))"
+[transformations.source.datafields]
+p = "payments/invoices/invoice/vat_info/vat_percentage"
+btto = "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/amount/btto_sum"
+[transformations.source.literals]
+[transformations.parameters]
+decimal_places = "2"
+
+[[transformations]] #4: delete sensitive_data and all its descendants
+target = "payments/invoices/invoice/invoice_lines/line/pol_info/sensitive_data"
+keep = false
+append_element = ""
+value = ""
+[transformations.source.datafields]
+[transformations.source.literals]
+[transformations.parameters]
+
+
+# remote uploads
+
+# If "include" and "exclude" are both empty arrays, all transformed files
+# except filter residue and split default will be uploaded
+
+[[uploads]]
+active = true
+timeout = 5.0
+protocol = "SFTP"
+server = "dataservice.example.com"
+path = "/data_upload"
+user = "SAPient"
+key = "/home/datauser/.ssh/id_rsa"
+pubkey = "/home/datauser/.ssh/id_rsa.pub"
+include = []
+exclude = [
+    "RESIDUE",
+    "DEFAULT"
+]
+
+[[uploads]]
+active = false
+timeout = 5.0
+protocol = "SCP"
+server = "testservice.example.com"
+path = "/home/ordinary"
+user = "ordinary"
+key = "/home/doe/.ssh/id_ed25519"
+pubkey = "/home/doe/.ssh/id_ed25519.pub"
+include = []
+exclude = []
+
+# general settings
+
+[settings]
+lang = "de" # language for transformer log message additions (where applicable)
+history_size = 14 # history storage period in days
+consistency_check = true
+inconsistency_notification = true
+[settings.dirs] # local paths
+original = "original_xml"
+transformed = "revised_files"
+history = "history"
+[settings.timeformats]
+history_folder = "%Y-%m-%d"
+files = "%Y-%m-%dT%H-%M-%S"
+[settings.email.mailer]
+smtp = "smtp.example.com"
+port = 25
+auth = false # Specify whether the SMTP server requires authentication
+[settings.email.message] # Content type set to UTF-8 plain text
+from = "Invoice Filter <libsys@example.com>"
+reply_to = [
+    "Jane Roe <jane.roe@example.com>",
+    "John Doe <john.doe@example.com>"
+]
+to = [
+    # "Invoice Filter <libsys@example.com>",
+    "Jane Roe <jane.roe@example.com>",
+    "John Doe <john.doe@example.com>"
+]
+subject = "⚠️ Log-Report Invoice Filter"

@@ -1,0 +1,229 @@
+# original file
+
+[reading_original_dir_failed]
+de = "Fehler beim Lesen des LMS-Export-Verzeichnisses"
+en = "Reading the content of the LMS export folder failed"
+
+[reading_dir_entry_failed]
+de = "Verzeichniseintrag kann nicht gelesen werden"
+en = "Reading directory entry failed"
+
+[reading_original_failed]
+de = "Die Original-Datei kann nicht gelesen werden"
+en = "Can't read from original XML file"
+
+[missing_original]
+de = "LMS-Rechnungsexport nicht gefunden; Export-Verzeichnis leer"
+en = "Missing LMS invoice export; empty export folder"
+
+[more_than_one_original]
+de = "Im Export-Ordner befinden sich mehrere Dateien (erwartet wird genau ein Rechnungsexport)"
+en = "More than one file in the export folder (exactly one invoice export expected)"
+
+[end_of_original_file]
+de = "Original-Datei gelesen"
+en = "Original XML file read"
+
+# filter and split consistency
+
+[allow_block_conflict]
+de = "Einige XML-Elemente sind sowohl in der Positiv- als auch in der Negativliste des Filters enthalten, wodurch der Filter möglicherweise unerwünschte Resultate liefert"
+en = "Some XML elements are included in both the positive and negative lists of the filter, which may cause the filter to produce undesirable results"
+
+[splitting_without_allowance]
+de = "Einige Splitting-Definitionen werden ignoriert, weil sie Werte enthalten, die in der Positivliste des Filters fehlen und daher vor dem Splitting herausgefiltert werden"
+en = "Some splitting definitions are ignored because they contain values that are missing from the filter's positive list and are therefore filtered out before splitting"
+
+[splitting_despite_blocking]
+de = "Einige Splitting-Definitionen werden ignoriert, weil sie Werte enthalten, die in der Negativliste des Filters vorkommen und daher vor dem Splitting herausgefiltert werden"
+en = "Some splitting definitions are ignored because they contain values that occur in the negative list of the filter and are therefore filtered out before splitting"
+
+[allowance_without_splitting]
+de = "In der Positivliste des Filters finden sich einige Werte, für die kein Splitting definiert ist"
+en = "The filter's positive list contains some values for which no splitting is defined"
+
+[filter_split_conflict]
+de = "Die folgenden Kombinationen von Filter- und Splitting-Einstellungen stehen möglicherweise in einem Konflikt"
+en = "The following combinations of filter and splitting settings may be in conflict"
+
+# write xml
+
+[file_written]
+de = "XML-Datei geschrieben"
+en = "XML file written"
+
+[writing_file_failed]
+de = "XML-Datei kann nicht geschrieben werden"
+en = "Writing XML file failed"
+
+[writing_event_failed]
+de = "XML-Element kann nicht geschrieben werden"
+en = "Can't write XML element"
+
+[str_from_writer_failed]
+de = "Writer liefert keine Zeichenkette"
+en = "Writer doesn't yield character string"
+
+# xml transformation
+
+[reading_xml_event_failed]
+de = "XML-Element kann nicht gelesen werden"
+en = "Reading XML element failed"
+
+[transformation_failed]
+de = "Die XML-Datei kann nicht transformiert werden"
+en = "XML transformation failed"
+
+[transforming_original_failed]
+de = "Die Verarbeitung der Originaldatei ist fehlgeschlagen"
+en = "Processing of the original file has failed"
+
+[process_cancelled]
+de = "Der Vorgang wird abgebrochen"
+en = "The process is canceled"
+
+# expression evaluation
+
+[evaluation_failed]
+de = "Der XML-Textknoten kann nicht transformiert werden"
+en = "Transformation of XML text node failed"
+
+[empty_value]
+de = "Die Transformationsregel liefert einen leeren Wert"
+en = "Transformation rule yields an empty value"
+
+[decimal_places_not_parsable]
+de = "Die gewünschte Anzahl der Nachkommastellen kann nicht bestimmt werden"
+en = "The desired number of decimal places can't be determined"
+
+# upload
+
+[upload_successful]
+de = "Datei hochgeladen"
+en = "File uploaded"
+
+[upload_failed]
+de = "Datei kann nicht hochgeladen werden"
+en = "File upload failed"
+
+[missing_prefix]
+de = "Kein Datei-Präfix gefunden"
+en = "Missing file prefix"
+
+[upload_aborted]
+de = "Upload abgebrochen"
+en = "Upload aborted"
+
+[upload_report]
+de = "Einige Datei-Uploads sind fehlgeschlagen; die entsprechenden Dateien wurden daher nicht ins Archiv verschoben"
+en = "Some file uploads failed; the corresponding files were therefore not moved to the archive"
+
+# history
+
+[reading_hist_dir_failed]
+de = "History-Verzeichnis kann nicht gelesen werden"
+en = "Reading history directory failed"
+
+[parse_date_from_folder_name_failed]
+de = "Aus dem Ordnernamen kann kein Datum extrahiert werden"
+en = "Date extraction from folder name failed"
+
+[parse_date_from_timestamp_failed]
+de = "Aus dem Zeitstempel kann kein Datum extrahiert werden"
+en = "Date extraction from timestamp failed"
+
+[history_creation_successful]
+de = "History angelegt"
+en = "History created"
+curlerror = "Der Upload der folgenden Datei(en) ist fehlgeschlagen:"
+
+[history_creation_failed]
+de = "History kann nicht angelegt werden"
+en = "History creation failed"
+curlerror = "The upload of the following files failed:"
+
+[history_cleared]
+de = "History-Ordner geleert"
+en = "History cleared"
+
+[history_clearing_failed]
+de = "History-Ordner kann nicht geleert werden"
+en = "History clearing failed"
+
+# archiving
+
+[archiving_successful]
+de = "Datei archiviert"
+en = "File archived"
+
+[archiving_failed]
+de = "Datei kann nicht archiviert werden"
+en = "Archiving file failed"
+
+[archiving_original_failed]
+de = "Die automatische Archivierung der Originaldatei ist fehlgschlagen. Bitte verschieben Sie die Datei manuell ins Archiv."
+en = "The automatic archiving of the original file has failed. Please move the file to the archive manually."
+
+[archiving_prevented]
+de = "Einige Uploads sind fehlgeschlagen, daher wird die Datei nicht archiviert"
+en = "Some uploads failed, so the file will not be archived"
+
+[archiving_report]
+de = "Einige Dateien konnten nicht archiviert werden"
+en = "Some files could not be archived"
+
+# e-mail
+
+[send_email_successful]
+de = "Log-Bericht verschickt"
+en = "Log report sent out"
+
+[send_email_failed]
+de = "Log-Bericht konnte nicht versandt werden"
+en = "Log report could not be sent"
+
+[from_error]
+de = "Fehler im «from»-Feld der E-Mail"
+en = "Error in the 'from' field of the e-mail"
+
+[reply_to_error]
+de = "Fehler im «reply_to»-Feld der E-Mail"
+en = "Error in the 'reply_to' field of the e-mail"
+
+[to_error]
+de = "Fehler im «to»-Feld der E-Mail"
+en = "Error in the 'to' field of the e-mail"
+
+[message_building_error]
+de = "Fehler bei der Erstellung der E-Mail-Nachricht"
+en = "Error when creating the e-mail message"
+
+[missing_smtp_user]
+de = "SMTP-Nutzer fehlt"
+en = "Missing SMTP user"
+
+[missing_smtp_pw]
+de = "SMTP-Passwort fehlt"
+en = "Missing SMTP password"
+
+# vocabulary
+
+[xml_element]
+de = "XML-Element"
+en = "XML element"
+
+[values]
+de = "Werte"
+en = "values"
+
+[conflicting_values]
+de = "konfligierende Werte"
+en = "conflicting values"
+
+[filter]
+de = "Filter"
+en = "filter"
+
+[split_definition]
+de = "Split-Definition"
+en = "split definition"
