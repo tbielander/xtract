@@ -48,7 +48,7 @@ default = "DEFAULT"
 [split.grouping."payments/invoices/invoice/invoice_owner"]
 "Happy Owner" = "LIB001"
 [split.grouping."payments/invoices/invoice/owner_entity/orgId"]
-3210705901456789= "LIB001"
+3210705901456789 = "LIB001"
 3210613802456789 = "LIB023"
 # 321041220356789 = "LIB456"
 
