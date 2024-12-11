@@ -157,7 +157,7 @@ files = "%Y-%m-%dT%H-%M-%S"
 smtp = "smtp.example.com"
 port = 25
 auth = false # Specify whether the SMTP server requires authentication
-[settings.email.message] # Content type set to UTF-8 plain text
+[settings.email.message] # The content type is not configurable but hard-coded to UTF-8 plain text
 from = "Invoice Filter <libsys@example.com>"
 reply_to = [
     "Jane Roe <jane.roe@example.com>",
