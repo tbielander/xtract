@@ -1,5 +1,5 @@
 # XtracT
-XtracT (**X**ML **tra**nsformer with **c**onfiguration **T**OML) is a simple CLI application for filtering, splitting and transforming XML files. Its source code depends on various Rust libraries listed in the [Cargo.toml](Cargo.toml), but it makes especially heavy use of the awesome [quick_xml](https://github.com/tafia/quick-xml) and [evalexpr](https://github.com/ISibboI/evalexpr) crates. Furthermore, as the expanded name of the app suggests, it is of course the [TOML](https://github.com/toml-lang/toml) specification that makes configuring XtracT a breeze.
+XtracT (**X**ML **tra**nsformer with **c**onfiguration **T**OML) is a simple CLI application for filtering, splitting and transforming XML files. Its source code depends on various Rust libraries listed in the [Cargo.toml](Cargo.toml), but it makes especially heavy use of the awesome [quick_xml](https://github.com/tafia/quick-xml) and [evalexpr](https://github.com/ISibboI/evalexpr) crates. Furthermore, as the expanded name of the app suggests, it is the [TOML](https://github.com/toml-lang/toml) specification that makes configuring XtracT a breeze.
 
 ## Functionality
 
