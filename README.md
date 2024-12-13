@@ -3,7 +3,7 @@ XtracT (**X**ML **tra**nsformer with **c**onfiguration **T**OML) is a simple CLI
 
 ## Functionality
 
-After compilation, the app is executed on the console using the `xtract` command (or whatever package name you chose in your [Cargo.toml](Cargo.toml)). The program expects exactly one original XML file in the corresponding folder as input. The output depends largely on the settings in the TOML configuration file (see below). In a typical use case, certain XML elements are filtered out of the original file and written to a residual file, while the other elements are transformed if necessary and written to separate files according to the splitting definitions.
+After compilation, the app is executed by running the `xtract` command (or whatever package name you chose in your [Cargo.toml](Cargo.toml)). The program expects exactly one original XML file in the corresponding folder as input. The output depends largely on the settings in the TOML configuration file (see below). In a typical use case, certain XML elements are filtered out of the original file and written to a residual file, while the other elements are transformed if necessary and written to separate files according to the splitting definitions.
 
 ## Configuration
 
