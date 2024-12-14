@@ -1,9 +1,9 @@
 # XtracT
-XtracT (**X**ML **tra**nsformer with **c**onfiguration **T**OML) is a simple CLI application for filtering, splitting and transforming XML files. Its source code depends on various Rust libraries listed in the [Cargo.toml](Cargo.toml), but it makes especially heavy use of the awesome [quick_xml](https://github.com/tafia/quick-xml) and [evalexpr](https://github.com/ISibboI/evalexpr) crates. Furthermore, as the expanded name of the app suggests, it is the [TOML](https://github.com/toml-lang/toml) specification that makes configuring XtracT a breeze.
+XtracT (**X**ML **tra**nsformer with **c**onfiguration **T**OML) is a simple CLI application for filtering, splitting and transforming XML files. Its source code depends on various Rust libraries listed in the [Cargo.toml](Cargo.toml), but it makes especially heavy use of the awesome [quick_xml](https://github.com/tafia/quick-xml) and [evalexpr](https://github.com/ISibboI/evalexpr) crates. Furthermore, as the expanded name of the app suggests, it is the [TOML](https://github.com/toml-lang/toml) specification that makes it very easy to customise the app to your own needs.
 
 ## Functionality
 
-After compilation, the app is executed by running the `xtract` command (or whatever package name you chose in your [Cargo.toml](Cargo.toml)). The program expects exactly one original XML file in the corresponding folder as input. The output depends largely on the settings in the TOML configuration file (see below). In a typical use case, certain XML elements are filtered out of the original file and written to a residual file, while the other elements are transformed if necessary and written to separate files according to the splitting definitions.
+After compilation, the program is executed by running the `xtract` command (or whatever package name you chose in your [Cargo.toml](Cargo.toml)). The program expects exactly one original XML file in the corresponding folder as input. The output depends largely on the settings in the TOML configuration file (see below). In a typical use case, certain XML elements are filtered out of the original file and written to a residual file, while the other elements are transformed if necessary and written to separate files according to the splitting definitions.
 
 ## Configuration
 
