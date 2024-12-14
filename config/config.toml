@@ -2,7 +2,6 @@
 
 element = "payments/invoices/invoice"
 
-
 # filter
 
 [filter]
@@ -39,7 +38,6 @@ residue = "RESIDUE"
     "BLOCKEDMETHOD",
 ]
 
-
 # split
 
 [split]
@@ -51,7 +49,6 @@ default = "DEFAULT"
 3210705901456789 = "LIB001"
 3210613802456789 = "LIB023"
 # 321041220356789 = "LIB456"
-
 
 # transformations
 
@@ -105,7 +102,6 @@ value = ""
 [transformations.source.datafields]
 [transformations.source.literals]
 [transformations.parameters]
-
 
 # remote uploads
 
