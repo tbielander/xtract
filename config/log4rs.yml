@@ -20,7 +20,7 @@ appenders:
       roller:
         kind: delete
 
-# Set the default logging level to "warn" and attach the "stdout" appender to the root
+# Set the default logging level to "info" and attach the "stdout" appender to the root
 root:
   level: info
   appenders:
