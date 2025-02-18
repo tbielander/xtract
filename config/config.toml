@@ -103,6 +103,19 @@ value = ""
 [transformations.source.literals]
 [transformations.parameters]
 
+[[transformations]] #5
+target = "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/code"
+keep = true
+append_element = ""
+value = "if(fundcode == hdc, hdotdc, fundcode)"
+[transformations.source.datafields]
+fundcode = "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/code"
+[transformations.source.literals]
+hdc = "HDC2025"
+hdotdc = "H.DC2025"
+[transformations.parameters]
+[transformations.preconditions]
+
 # remote uploads
 
 # If "include" and "exclude" are both empty arrays, all transformed files
