@@ -3,8 +3,9 @@ use std::io::Result;
 use std::collections::HashMap;
 use std::path::Path;
 use log::{error, info};
-use quick_xml::events::{BytesEnd, BytesStart, BytesText, Event};
+use quick_xml::events::{Event, BytesText};
 use quick_xml::reader::Reader;
+use regex::Regex;
 use crate::transformations::transformer::*;
 use crate::utils::*;
 use crate::config::*;
@@ -38,7 +39,7 @@ pub fn transform<'a>(
     let split_path: Vec<&str> = config.element.split("/").collect();
     let mut include: bool = true;
     let mut keep: bool = true;
-
+    
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Decl(e)) => {
@@ -53,8 +54,20 @@ pub fn transform<'a>(
                 current_path.push(String::from_utf8(e.name().as_ref().to_owned()).unwrap());
                 let current_path_string = current_path.join("/");
                 for t in &mut transformers {
-                    if !t.transformation.keep && t.transformation.target == current_path_string {
-                        keep = false;
+                    if let Some(elements) = t.transformation.preconditions.get("missing") {
+                        if elements.contains(&current_path_string) {
+                            *t.missing.entry(current_path_string.clone()).or_default() = false;
+                        }
+                    }
+                    if let Some(elements) = t.transformation.preconditions.get("existing") {
+                        if elements.contains(&current_path_string) {
+                            *t.existing.entry(current_path_string.clone()).or_default() = true;
+                        }
+                    }
+                    if t.transformation.target == current_path_string {
+                        if !t.transformation.keep {
+                            keep = false;
+                        }
                     }
                 }
                 if !keep {
@@ -92,12 +105,19 @@ pub fn transform<'a>(
                     }
                 }
                 if let Some(list) = config.filter.allowlist.get(&current_path_string) {
-                    if list.iter().all(|i| i.to_string() != text_from_event) {
+                    if list.iter().all(
+                        |i| i.to_string() != text_from_event &&
+                        // Regex::new(r"a^") does not match "a^", so it can most likely be used as a fallback that does not match anything:
+                        !Regex::new(i).unwrap_or_else(|_err| Regex::new(r"a^").unwrap()).is_match(&text_from_event)
+                    ) {
                         include = false;
                     }
                 }
                 if let Some(list) = config.filter.blocklist.get(&current_path_string) {
-                    if list.iter().any(|i| i.to_string() == text_from_event) {
+                    if list.iter().any(
+                        |i| i.to_string() == text_from_event ||
+                        Regex::new(i).unwrap_or_else(|_err| Regex::new(r"a^").unwrap()).is_match(&text_from_event)
+                    ) {
                         include = false;
                     }
                 }
@@ -109,7 +129,11 @@ pub fn transform<'a>(
                     split_element.push(Event::Text(e.clone().into_owned()));
                     for t in &mut transformers {
                         t.check_value(&current_path_string, &text_from_event, &config, &msg_config);
-                        if t.transformation.target == current_path_string && t.transformation.append_element == "" {
+                        t.precondition = (t.missing.is_empty() || t.missing.clone().into_values().all(|v| v == true)) &&
+                                        (t.existing.is_empty() || t.existing.clone().into_values().all(|v| v == true));
+                        if t.transformation.target == current_path_string &&
+                            t.transformation.nodes.is_empty() &&
+                            t.precondition {
                             split_element.pop();
                             split_element.push(Event::Text(BytesText::new(&t.value_transformed).into_owned()));
                         }
@@ -133,16 +157,28 @@ pub fn transform<'a>(
                         xml_event_list.push(Event::End(e.clone().into_owned()));
                     }
                 } else {
+                    for t in &mut transformers {
+                        if t.transformation.target == current_path_string {
+                            if let Some(path) = t.transformation.nodes.get("insert") {
+                                t.precondition = (t.missing.is_empty() || t.missing.clone().into_values().all(|v| v == true)) &&
+                                                (t.existing.is_empty() || t.existing.clone().into_values().all(|v| v == true));
+                                if t.precondition {
+                                    split_element.append(&mut embed(t.value_transformed.to_owned(), path.to_owned()));
+                                }
+                            }
+                        }
+                    }
                     split_element.push(Event::End(e.clone().into_owned()));
                     for t in &mut transformers {
-                        if t.transformation.append_element != "" {
-                            if t.transformation.target == current_path_string {
-                                let start_tag = BytesStart::new( t.transformation.append_element.clone());
-                                let end_tag = BytesEnd::new(t.transformation.append_element.clone());
-                                split_element.push(Event::Start(start_tag));
-                                split_element.push(Event::Text(BytesText::new(&t.value_transformed).into_owned()));
-                                split_element.push(Event::End(end_tag));
+                        if t.transformation.target == current_path_string {
+                            if let Some(path) = t.transformation.nodes.get("append") {
+                                if t.precondition {
+                                    split_element.append(&mut embed(t.value_transformed.to_owned(), path.to_owned()));
+                                }
                             }
+                            t.missing = HashMap::new();
+                            t.existing = HashMap::new();
+                            t.precondition = true;
                         }
                     }
                     if current_path == split_path {

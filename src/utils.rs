@@ -10,7 +10,7 @@ use std::collections::{HashMap, HashSet};
 use chrono::NaiveDate;
 use lettre::message::{header, Mailbox, Mailboxes, MessageBuilder};
 use log::{error, info, warn};
-use quick_xml::events::Event;
+use quick_xml::events::{Event, BytesStart, BytesText, BytesEnd};
 use quick_xml::writer::Writer;
 use lettre::message::header::ContentType;
 use lettre::transport::smtp::authentication::Credentials;
@@ -119,7 +119,7 @@ pub fn get_intersection(hs1: &HashSet<&String, RandomState>, hs2: &HashSet<&Stri
     .into_iter()
     .map(|s| s.to_string())
     .collect();
-    return intersection;
+    intersection
 }
 
 pub fn get_difference(hs1: &HashSet<&String, RandomState>, hs2: &HashSet<&String, RandomState>) -> Vec<String> {
@@ -127,7 +127,28 @@ pub fn get_difference(hs1: &HashSet<&String, RandomState>, hs2: &HashSet<&String
     .into_iter()
     .map(|s| s.to_string())
     .collect();
-    return difference;
+    difference
+}
+
+pub fn embed<'a>(value: String, path: String) -> Vec<Event<'a>> {
+    let mut new_element_names: Vec<String> = Vec::new();
+    let mut new_elements: Vec<Event<'_>> = Vec::new();
+    let split_path= path.split("/");
+    for name in split_path {
+        new_element_names.push(name.to_string());
+    }
+    for element in &new_element_names {
+        let start_tag = BytesStart::new( element.clone());
+        new_elements.push(Event::Start(start_tag));
+    }
+    new_elements.push(Event::Text(BytesText::new(&value).into_owned()));
+    new_element_names.reverse();
+    for name in new_element_names {
+        let end_tag = BytesEnd::new(name.clone());
+        new_elements.push(Event::End(end_tag));
+    }
+
+    new_elements
 }
 
 pub fn format_warning(
@@ -235,7 +256,7 @@ pub fn check_consistency(config: &Config, msg_config: &HashMap<String, HashMap<S
         }
     } else {
         let msg = get_msg(&msg_config, "allow_block_conflict", lang);
-        let warning = format!("\n{}:\n  • {}", msg, inconsistent_filter.join("\n  • "));
+        let warning = format!("{}:\n  • {}", msg, inconsistent_filter.join("\n  • "));
         warn!("{warning}");
         if config.settings.inconsistency_notification {
             send_mail(config, msg_config, warning);

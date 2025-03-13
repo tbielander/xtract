@@ -15,10 +15,11 @@ pub struct Source {
 pub struct Transformation {
     pub target: String,
     pub keep: bool,
-    pub append_element: String,
     pub value: String,
+    pub nodes: HashMap<String, String>,
     pub source: Source,
     pub parameters: HashMap<String, String>,
+    pub preconditions: HashMap<String, Vec<String>>,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -27,13 +28,20 @@ pub struct Transformer {
     pub parameters: HashMap<String, String>,
     pub value_computed: bool,
     pub value_transformed: String,
+    pub missing: HashMap<String, bool>,
+    pub existing: HashMap<String, bool>,
+    pub precondition: bool,
 }
 
 impl Transformer {
     pub fn new(transformation: Transformation) -> Self {
-        Transformer { transformation, ..Default::default() }
+        Transformer {
+            transformation,
+            precondition: true,
+            ..Default::default()
+        }
     }
-
+    
     pub fn eval_expr(&mut self, config: &Config, msg_config: &HashMap<String, HashMap<String, String>>) -> () {   
         let evaluation_error = get_msg(&msg_config, "evaluation_failed", &config.settings.lang);
                 match build_operator_tree(&self.transformation.value) {
