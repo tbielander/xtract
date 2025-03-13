@@ -15,7 +15,7 @@ The **`element`** is a string defining the XML path or the level, so to speak, a
 
 ### filter
 
-The **`filter`** consists of an `allowlist` and a `blocklist`. These lists consist of key-value pairs where the key is a string representing an XML element and the value is a list of values that are allowed or blocked respectively. The allowlist and the blocklist can also be empty.
+The **`filter`** consists of an `allowlist` and a `blocklist`. These lists consist of key-value pairs where the key is a string representing an XML element and the value is a list of strings that are allowed or blocked respectively. In addition to unique strings, you can also use regular expressions as values, although lookarounds are not possible. The allowlist and the blocklist may be empty.
 
 If non-empty their elements must be descendants of the aforementioned filter and split level element. In the example file the entries in the allowlist and in the blocklist define the values the subelements of the `invoice` element must have or must not have in order to pass the filter. The `invoice` elements that don't pass the filter will be collected in a special file whose prefix is defined in the `residue` field of the **`filter`**.
 
@@ -30,11 +30,12 @@ The `default` field of the **`split`** settings defines the prefix of a residual
 ### transformations
 
 Entries of the **`transformations`** type have the following structure:
-- `target`: the element whose value is to be adjusted or after which a new customized element is to be inserted, depending on the `append_element` property of the transformation rule (see below).
+- `target`: the element whose value is to be adjusted or inside/after which new customized elements are to be inserted, depending on the `nodes` property of the transformation rule (see below).
 - `keep`: a boolean field defaulting to `true`; if set to `false`, the `target` element and all its descendants will be removed from the output XML regardless of all other settings in the given transformation rule.
-- `append_element`: a string field defaulting to the empty string; if it contains a non-empty string, the latter is used as the name of a new element which will be inserted immediately after the end tag of the `target` element. In this case, it is not the transformation's `target` element that will receive the adjusted `value` but instead the latter goes to the text node of the newly created element.
 - `value`: the new text value of the `target` or of the newly created element. The `value` is either a string literal or the result of the evaluation of an expression. The latter must be a valid expression of the [evalexpr](https://github.com/ISibboI/evalexpr) scripting language.
+- `nodes`: new XML nodes that will be created; if specified, instead of the `target` element, the innermost of the newly created nodes will contain the `value` as a text node; there are two different places where the new elements can be inserted: with the `append` keyword they are appended after the `target` element, with the `insert` keyword they are inserted immediately before the end tag of the `target`.
 - `source.datafields` and `source.literals`: if the new `value` is computed from an expression containing variables, those variables must either be initialised with values from other XML elements or with literal values. The former are defined in the `datafields` list and the latter in the `literals` list. Please note that  in the current version of XtracT there is an important restriction regarding the `datafields` nodes in that they must not follow after the `target` node in the original XML; otherwise the `value` expression cannot be evaluated when the `target` node is read in.
+- `preconditions`: while the `value` can depend on the values of other elements according to (nested) if-then-else expressions, with the `preconditions` field you can also state conditions for the application of the transformation rule as such, depending on the existence of certain other XML elements. With the `existing` keyword you indicate that the rule should only be applied if all child elements specified in the corresponding list occured before the closing tag of the `target` was read in; with the `missing` keyword you indicate that the rule should only be applied if none of the child elements specified in the corresponding list occured before the closing tag of the `target` was read in. If both `existing` and `missing` elements are specified, the two conditions will be linked by logical conjunction.
 - `parameters`: a list of parameters that control the behaviour of the transformation rule. In the current version of XtracT, the only permitted parameter is the number of `decimal_places` in numerical values.
 
 ### uploads
