@@ -25,6 +25,7 @@ residue = "RESIDUE"
     "EX-FALSO-ABC",
     "SEQUITUR-DEF",
     "QUOD-LIBET-XYZ",
+    "^(MATCH-)?PATTERN", # use regex to cover multiple values
 ]
 
 [filter.blocklist]
@@ -36,6 +37,7 @@ residue = "RESIDUE"
 ]
 "payments/invoices/invoice/payment_method" = [
     "BLOCKEDMETHOD",
+    "ANOTHERBLOCKEDMETHOD",
 ]
 
 # split
@@ -60,61 +62,103 @@ default = "DEFAULT"
 # ‒ Only a subset of the evalexpr language is supported; in particular, tuples are not supported.
 
 [[transformations]] #1
+# round VAT rates according to nested if-then-else rule
 target = "payments/invoices/invoice/vat_info/vat_percentage"
 keep = true
-append_element = ""
 value = "if(p > 7.8, 8.1, if(p > 2.4, 2.6, 0.0))"
+[transformations.nodes]
 [transformations.source.datafields]
 p = "payments/invoices/invoice/vat_info/vat_percentage"
 [transformations.source.literals]
+[transformations.preconditions]
 [transformations.parameters]
 decimal_places = "1"
 
 [[transformations]] #2
+# calculate net price from gross price according to nested if-then-else rule,
+# wrap the value in new net_price element and append it after price
 target = "payments/invoices/invoice/invoice_lines/line/price"
 keep = true
-append_element = "net_price"
 value = "if(p > 7.8, btto / 1.081, if(p > 2.4, btto / 1.026, btto))"
+[transformations.nodes]
+append = "net_price"
 [transformations.source.datafields]
 p = "payments/invoices/invoice/vat_info/vat_percentage"
 btto = "payments/invoices/invoice/invoice_lines/line/price"
 [transformations.source.literals]
+[transformations.preconditions]
 [transformations.parameters]
 decimal_places = "2"
 
 [[transformations]] #3
+# calculate net amount from gross amount according to nested if-then-else rule,
+# wrap the value in new net_sum element and append it after btto_sum
 target = "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/amount/btto_sum"
 keep = true
-append_element = "net_sum"
 value = "if(p > 7.8, btto / 1.081, if(p > 2.4, btto / 1.026, btto))"
+[transformations.nodes]
+append = "net_sum"
 [transformations.source.datafields]
 p = "payments/invoices/invoice/vat_info/vat_percentage"
 btto = "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/amount/btto_sum"
 [transformations.source.literals]
+[transformations.preconditions]
 [transformations.parameters]
 decimal_places = "2"
 
-[[transformations]] #4: delete sensitive_data and all its descendants
+[[transformations]] #4
+# delete sensitive_data and all its descendants
 target = "payments/invoices/invoice/invoice_lines/line/pol_info/sensitive_data"
 keep = false
-append_element = ""
 value = ""
+[transformations.nodes]
 [transformations.source.datafields]
 [transformations.source.literals]
+[transformations.preconditions]
 [transformations.parameters]
 
 [[transformations]] #5
+# replace fund code HDC2025 with H.DC2025
 target = "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/code"
 keep = true
-append_element = ""
 value = "if(fundcode == hdc, hdotdc, fundcode)"
+[transformations.nodes]
 [transformations.source.datafields]
 fundcode = "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/code"
 [transformations.source.literals]
 hdc = "HDC2025"
 hdotdc = "H.DC2025"
-[transformations.parameters]
 [transformations.preconditions]
+[transformations.parameters]
+
+[[transformations]] #6
+# if line element does not have a quantity child element,
+# insert <quantity>1</quantity> before closing tag of line element
+target = "payments/invoices/invoice/invoice_lines/line"
+keep = true
+value = "1"
+[transformations.nodes]
+insert = "quantity"
+[transformations.source.datafields]
+[transformations.source.literals]
+[transformations.preconditions]
+missing = ["payments/invoices/invoice/invoice_lines/line/quantity"]
+[transformations.parameters]
+
+[[transformations]] #7
+# if line element does not have a pol_info/pol_title subpath,
+# insert <pol_info><pol_title>Invoice Item without POL</pol_title></pol_info> before closing tag of line element
+target = "payments/invoices/invoice/invoice_lines/line"
+keep = true
+value = "nopol"
+[transformations.nodes]
+insert = "po_line_info/po_line_title"
+[transformations.source.datafields]
+[transformations.source.literals]
+nopol = "Invoice Item without POL"
+[transformations.preconditions]
+missing = ["payments/invoices/invoice/invoice_lines/line/pol_info/pol_title"]
+[transformations.parameters]
 
 # remote uploads
 
@@ -133,7 +177,7 @@ pubkey = "/home/datauser/.ssh/id_rsa.pub"
 include = []
 exclude = [
     "RESIDUE",
-    "DEFAULT"
+    "DEFAULT",
 ]
 
 [[uploads]]
@@ -154,7 +198,7 @@ exclude = []
 lang = "de" # language for transformer log message additions (where applicable)
 history_size = 14 # history storage period in days
 consistency_check = true
-inconsistency_notification = true
+inconsistency_notification = false # if true, addressees listed below are notified about possible inconsistencies in the filter and split definitions
 [settings.dirs] # local paths
 original = "original_xml"
 transformed = "revised_files"
@@ -170,11 +214,11 @@ auth = false # Specify whether the SMTP server requires authentication
 from = "Invoice Filter <libsys@example.com>"
 reply_to = [
     "Jane Roe <jane.roe@example.com>",
-    "John Doe <john.doe@example.com>"
+    "John Doe <john.doe@example.com>",
 ]
 to = [
     # "Invoice Filter <libsys@example.com>",
     "Jane Roe <jane.roe@example.com>",
-    "John Doe <john.doe@example.com>"
+    "John Doe <john.doe@example.com>",
 ]
 subject = "⚠️ Log-Report Invoice Filter"
