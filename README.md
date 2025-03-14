@@ -15,9 +15,9 @@ The **`element`** is a string defining the XML path or the level, so to speak, a
 
 ### filter
 
-The **`filter`** consists of an `allowlist` and a `blocklist`. These lists consist of key-value pairs where the key is a string representing an XML element and the value is a list of strings that are allowed or blocked respectively. In addition to unique strings, you can also use regular expressions as values, although lookarounds are not possible. The allowlist and the blocklist may be empty.
+The **`filter`** consists of an `allowlist` and a `blocklist`. These lists consist of key-value pairs where the key is a string representing an XML element and the value is a list of strings that are allowed or blocked respectively. In addition to unique strings, you can also use regular expressions as values, although lookarounds are not possible.
 
-If non-empty their elements must be descendants of the aforementioned filter and split level element. In the example file the entries in the allowlist and in the blocklist define the values the subelements of the `invoice` element must have or must not have in order to pass the filter. The `invoice` elements that don't pass the filter will be collected in a special file whose prefix is defined in the `residue` field of the **`filter`**.
+The allowlist and the blocklist may be empty. If non-empty their elements must be descendants of the aforementioned filter and split level element. In the example file the entries in the allowlist and in the blocklist define the values the subelements of the `invoice` element must have or must not have in order to pass the filter. The `invoice` elements that don't pass the filter will be collected in a special file whose prefix is defined in the `residue` field of the **`filter`**.
 
 ### split
 
@@ -29,8 +29,8 @@ The `default` field of the **`split`** settings defines the prefix of a residual
 
 ### transformations
 
-Entries of the **`transformations`** type have the following structure:
-- `target`: the element whose value is to be adjusted or inside/after which new customized elements are to be inserted, depending on the `nodes` property of the transformation rule (see below).
+In addition to filtering and splitting, XtracT offers the option of using transformation rules to change certain text nodes in the input file and to delete individual XML elements or add new elements. Entries of the **`transformations`** type have the following structure:
+- `target`: the element whose value is to be adjusted or inside/after which new customised elements are to be inserted, depending on the `nodes` property of the transformation rule (see below).
 - `keep`: a boolean field defaulting to `true`; if set to `false`, the `target` element and all its descendants will be removed from the output XML regardless of all other settings in the given transformation rule.
 - `value`: the new text value of the `target` or of the newly created element. The `value` is either a string literal or the result of the evaluation of an expression. The latter must be a valid expression of the [evalexpr](https://github.com/ISibboI/evalexpr) scripting language.
 - `nodes`: new XML nodes that will be created; if specified, instead of the `target` element, the innermost of the newly created nodes will contain the `value` as a text node; there are two different places where the new elements can be inserted: with the `append` keyword they are appended after the `target` element, with the `insert` keyword they are inserted immediately before the end tag of the `target`.
