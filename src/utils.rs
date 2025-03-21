@@ -2,7 +2,6 @@ use std::collections::hash_map::RandomState;
 use std::env;
 use std::fs::{self, DirEntry};
 use std::fs::{read_dir, remove_dir_all};
-// use std::hash::BuildHasherDefault;
 use std::io::prelude::*;
 use std::io::Result;
 use std::path::Path;
