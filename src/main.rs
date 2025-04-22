@@ -7,8 +7,8 @@ use quick_xml::events::Event;
 use log::{error, info};
 use log4rs;
 
-use crate::transformations::transform::*;
-use crate::config::*;
+use transformations::transform::*;
+use config::*;
 use utils::*;
 use upload::*;
 
