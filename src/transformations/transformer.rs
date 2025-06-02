@@ -41,7 +41,19 @@ impl Transformer {
             ..Default::default()
         }
     }
-    
+
+    pub fn initialize_preconditions(&mut self) {
+        if let Some(elements) = self.transformation.preconditions.get("missing") {
+            for element in elements {
+                *self.missing.entry(element.clone()).or_insert(true) = true;
+            }
+        }
+        if let Some(elements) = self.transformation.preconditions.get("existing") {
+            for element in elements {
+                *self.existing.entry(element.clone()).or_insert(false) = false;
+            }
+        }
+    }
     pub fn eval_expr(&mut self, config: &Config, msg_config: &HashMap<String, HashMap<String, String>>) -> () {   
         let evaluation_error = get_msg(&msg_config, "evaluation_failed", &config.settings.lang);
                 match build_operator_tree(&self.transformation.value) {
@@ -133,7 +145,7 @@ impl Transformer {
     ) -> () {
         let datafields = &self.transformation.source.datafields;
         let literals = &self.transformation.source.literals;
-        // If no sources are specified for the assignment of the variables, it can be assumed
+        // If no sources are specified for the assignment of the variables, it is assumed
         // that the transformation value is to be inserted as a string literal:
         if datafields.is_empty() && literals.is_empty() {
             self.value_transformed = self.transformation.value.to_string();
@@ -154,8 +166,9 @@ impl Transformer {
                 }
             }
         }
-        if self.parameters.len() >= datafields.len() + literals.len() {
+        if self.parameters.len() == datafields.len() + literals.len() {
             self.eval_expr(&config, &msg_config);
+            self.value_computed = true;
         }
     }
 }

@@ -21,8 +21,12 @@ pub fn transform<'a>(
     let lang = &config.settings.lang;
 
     let mut transformers: Vec<Transformer> = config.transformations.clone().into_iter()
-    .map(|t| Transformer::new(t)).collect();
- 
+    .map(|transformation| Transformer::new(transformation)).collect::<Vec<Transformer>>();
+
+    for t in &mut transformers {
+        t.initialize_preconditions();
+    }
+
     let mut groups = config.split.grouping
     .values().cloned().collect::<Vec<HashMap<String, String>>>()
     .into_iter().map(|h| h.values().cloned().collect::<Vec<String>>())
@@ -172,13 +176,14 @@ pub fn transform<'a>(
                     for t in &mut transformers {
                         if t.transformation.target == current_path_string {
                             if let Some(path) = t.transformation.nodes.get("append") {
+                                t.precondition = (t.missing.is_empty() || t.missing.clone().into_values().all(|v| v == true)) &&
+                                                (t.existing.is_empty() || t.existing.clone().into_values().all(|v| v == true));
                                 if t.precondition {
                                     split_element.append(&mut embed(t.value_transformed.to_owned(), path.to_owned()));
                                 }
                             }
-                            t.missing = HashMap::new();
-                            t.existing = HashMap::new();
-                            t.precondition = true;
+                            t.initialize_preconditions();
+                            t.value_computed = false;
                         }
                     }
                     if current_path == split_path {
