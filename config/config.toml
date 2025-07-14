@@ -7,7 +7,7 @@ element = "payments/invoices/invoice"
 [filter]
 residue = "RESIDUE"
 
-[filter.allowlist]
+[filter.allowlist.exact]
 "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/ledger_code" = [
     "Allow-this-ledger",
 ]
@@ -25,10 +25,14 @@ residue = "RESIDUE"
     "EX-FALSO-ABC",
     "SEQUITUR-DEF",
     "QUOD-LIBET-XYZ",
+]
+
+[filter.allowlist.regex]
+"payments/invoices/invoice/vendor_code" = [
     "^(MATCH-)?PATTERN", # use regex to cover multiple values
 ]
 
-[filter.blocklist]
+[filter.blocklist.exact]
 "payments/invoices/invoice/invoice_lines/line/fund_infos/fund_info/code" = [
     "FUND-123",
     "FUND-456",
@@ -39,6 +43,9 @@ residue = "RESIDUE"
     "BLOCKEDMETHOD",
     "ANOTHERBLOCKEDMETHOD",
 ]
+
+[filter.blocklist.regex]
+# no regular expressions for blocking
 
 # split
 
@@ -74,8 +81,28 @@ p = "payments/invoices/invoice/vat_info/vat_percentage"
 [transformations.parameters]
 decimal_places = "1"
 
-[[transformations]] #2
-# calculate net price from gross price according to nested if-then-else rule,
+[[transformations]] #2a
+# if the quantity element exists, calculate net price from gross price
+# according to nested if-then-else rule using maximum of 1 and quantity value,
+# wrap the value in new net_price element and append it after price
+target = "payments/invoices/invoice/invoice_lines/line/price"
+keep = true
+value = "q = max(1, quantity); if(p > 7.8, btto / q / 1.081, if(p > 2.4, btto / q / 1.026, btto / q))"
+[transformations.nodes]
+append = "net_price"
+[transformations.source.datafields]
+p = "payments/invoices/invoice/vat_info/vat_percentage"
+btto = "payments/invoices/invoice/invoice_lines/line/price"
+quantity = "payments/invoices/invoice/invoice_lines/line/quantity"
+[transformations.source.literals]
+[transformations.preconditions]
+existing = ["payments/invoices/invoice/invoice_lines/line/quantity"]
+[transformations.parameters]
+decimal_places = "2"
+
+[[transformations]] #2b
+# if the quantity element is missing, calculate net price from gross price
+# according to nested if-then-else rule,
 # wrap the value in new net_price element and append it after price
 target = "payments/invoices/invoice/invoice_lines/line/price"
 keep = true
@@ -87,6 +114,7 @@ p = "payments/invoices/invoice/vat_info/vat_percentage"
 btto = "payments/invoices/invoice/invoice_lines/line/price"
 [transformations.source.literals]
 [transformations.preconditions]
+missing = ["payments/invoices/invoice/invoice_lines/line/quantity"]
 [transformations.parameters]
 decimal_places = "2"
 
@@ -131,7 +159,20 @@ hdotdc = "H.DC2025"
 [transformations.preconditions]
 [transformations.parameters]
 
-[[transformations]] #6
+[[transformations]] #6a
+# make sure that the value of an existing quantity element is at least 1
+target = "payments/invoices/invoice/invoice_lines/line"
+keep = true
+value = "max(1, quantity)"
+[transformations.nodes]
+[transformations.source.datafields]
+quantity = "payments/invoices/invoice/invoice_lines/line/quantity"
+[transformations.source.literals]
+[transformations.preconditions]
+existing = ["payments/invoices/invoice/invoice_lines/line/quantity"]
+[transformations.parameters]
+
+[[transformations]] #6b
 # if line element does not have a quantity child element,
 # insert <quantity>1</quantity> before closing tag of line element
 target = "payments/invoices/invoice/invoice_lines/line"
