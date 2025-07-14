@@ -108,21 +108,46 @@ pub fn transform<'a>(
                         }
                     }
                 }
-                if let Some(list) = config.filter.allowlist.get(&current_path_string) {
-                    if list.iter().all(
-                        |i| i.to_string() != text_from_event &&
-                        // Regex::new(r"a^") does not match "a^", so it can most likely be used as a fallback that does not match anything:
-                        !Regex::new(i).unwrap_or_else(|_err| Regex::new(r"a^").unwrap()).is_match(&text_from_event)
-                    ) {
-                        include = false;
+                match config.filter.allowlist.exact.get(&current_path_string) {
+                    Some(exact_list) => {
+                        if !exact_list.iter().any(|i| i.to_string() == text_from_event) {
+                            match config.filter.allowlist.regex.get(&current_path_string) {
+                                Some(regex_list) => {
+                                    if !regex_list.iter().any(
+                                        |i| Regex::new(i)
+                                        // Regex::new(r"a^") does not match "a^", so it can most likely be used as a fallback that does not match anything:
+                                        .unwrap_or_else(|_err| Regex::new(r"a^").unwrap())
+                                        .is_match(&text_from_event)
+                                    ) {
+                                        include = false;
+                                    }
+                                }
+                                None => include = false,
+                            }
+                        }
                     }
+                    None => (),
                 }
-                if let Some(list) = config.filter.blocklist.get(&current_path_string) {
-                    if list.iter().any(
-                        |i| i.to_string() == text_from_event ||
-                        Regex::new(i).unwrap_or_else(|_err| Regex::new(r"a^").unwrap()).is_match(&text_from_event)
-                    ) {
-                        include = false;
+                match config.filter.blocklist.exact.get(&current_path_string) {
+                    Some(exact_list) => {
+                        if exact_list.iter().any(|i| i.to_string() == text_from_event) {
+                            include = false;
+                        }
+                    }
+                    None => {
+                        match config.filter.blocklist.regex.get(&current_path_string) {
+                            Some(regex_list) => {
+                                if regex_list.iter().any(
+                                    |i| Regex::new(i)
+                                    // Regex::new(r"a^") does not match "a^", so it can most likely be used as a fallback that does not match anything:
+                                    .unwrap_or_else(|_err| Regex::new(r"a^").unwrap())
+                                    .is_match(&text_from_event)
+                                ) {
+                                    include = false;
+                                }
+                            }
+                            None => (),
+                        }
                     }
                 }
                 if superordinate(&current_path, &split_path).unwrap() {

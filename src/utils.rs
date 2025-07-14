@@ -179,9 +179,13 @@ pub fn compile_warnings(
 }
 
 pub fn check_consistency(config: &Config, msg_config: &HashMap<String, HashMap<String, String>>, lang: &String) {
-    let allowlist: HashSet<&String, RandomState> = HashSet::from_iter(config.filter.allowlist.keys());
-    let blocklist: HashSet<&String, RandomState> = HashSet::from_iter(config.filter.blocklist.keys());
-    let inconsistent_filter = get_intersection(&allowlist, &blocklist);
+    let keys_allow_exact: HashSet<&String, RandomState> = HashSet::from_iter(config.filter.allowlist.exact.keys());
+    let keys_allow_regex: HashSet<&String, RandomState> = HashSet::from_iter(config.filter.allowlist.regex.keys());
+    let keys_allow = keys_allow_exact.union(&keys_allow_regex).cloned().collect();
+    let keys_block_exact: HashSet<&String, RandomState> = HashSet::from_iter(config.filter.blocklist.exact.keys());
+    let keys_block_regex: HashSet<&String, RandomState> = HashSet::from_iter(config.filter.blocklist.regex.keys());
+    let keys_block = keys_block_exact.union(&keys_block_regex).cloned().collect();
+    let inconsistent_filter = get_intersection(&keys_allow, &keys_block);
     let filter_consistency = inconsistent_filter.is_empty();
 
     if filter_consistency {
@@ -197,15 +201,22 @@ pub fn check_consistency(config: &Config, msg_config: &HashMap<String, HashMap<S
                     .unwrap()
                     .keys()
                 );
-                if config.filter.allowlist.contains_key(xml_path) {
-                    let allowed = HashSet::from_iter(
-                        config.filter.allowlist
+                if keys_allow.contains(xml_path) {
+                    let allowed_exact: HashSet<&String> = HashSet::from_iter(
+                        config.filter.allowlist.exact
                         .get(xml_path)
                         .unwrap()
                         .into_iter()
                     );
+                    let allowed_regex: HashSet<&String> = HashSet::from_iter(
+                        config.filter.allowlist.regex
+                        .get(xml_path)
+                        .unwrap()
+                        .into_iter()
+                    );
+                    let allowed = allowed_exact.union(&allowed_regex).cloned().collect();
                     let split_but_not_allowed: Vec<String> = get_difference(&splitting, &allowed);
-                    let allowed_but_not_split: Vec<String> = get_difference(&allowed, &splitting);
+                    let allowed_but_not_split: Vec<String> = get_difference(&allowed_exact, &splitting);
                     if !split_but_not_allowed.is_empty() {
                         splitting_without_allowance.push((xml_path, split_but_not_allowed));
                     }
@@ -213,9 +224,9 @@ pub fn check_consistency(config: &Config, msg_config: &HashMap<String, HashMap<S
                         allowance_without_splitting.push((xml_path, allowed_but_not_split))
                     }
                 }
-                if config.filter.blocklist.contains_key(xml_path) {
+                if config.filter.blocklist.exact.contains_key(xml_path) {
                     let blocked = HashSet::from_iter(
-                        config.filter.blocklist
+                        config.filter.blocklist.exact
                         .get(xml_path)
                         .unwrap()
                         .into_iter()
