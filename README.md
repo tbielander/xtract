@@ -15,9 +15,9 @@ The **`element`** is a string defining the XML path or the level, so to speak, a
 
 ### filter
 
-The **`filter`** consists of an `allowlist` and a `blocklist`. These lists consist of key-value pairs where the key is a string representing an XML element and the value is a list of strings that are allowed or blocked respectively. In addition to unique strings, you can also use regular expressions as values, although lookarounds are not possible.
+The **`filter`** consists of an `allowlist` and a `blocklist`. There are two variants of these lists: `exact` for filtering by exact matches and `regex` for filtering by regular expressions. Both the `exact` and the `regex` lists consist of key-value pairs where the key is a string representing an XML element and the value is a list of strings that are allowed or blocked respectively. The exact lists allow or block unique values, while the regex lists allow or block values that match the regex patterns. Please note that regular expressions with lookarounds are not supported.
 
-The allowlist and the blocklist may be empty. If non-empty their elements must be descendants of the aforementioned filter and split level element. In the example file the entries in the allowlist and in the blocklist define the values the subelements of the `invoice` element must have or must not have in order to pass the filter. The `invoice` elements that don't pass the filter will be collected in a special file whose prefix is defined in the `residue` field of the **`filter`**.
+The allowlists and the blocklists may be empty. If non-empty their elements must be descendants of the aforementioned filter and split level element. In the example file the entries in the allowlists and in the blocklists define the values the subelements of the `invoice` element must have or must not have in order to pass the filter. The `invoice` elements that don't pass the filter will be collected in a special file whose prefix is defined in the `residue` field of the **`filter`**.
 
 ### split
 
