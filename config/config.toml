@@ -84,7 +84,7 @@ decimal_places = "1"
 [[transformations]] #2a
 # if the quantity element exists, calculate net price from gross price
 # according to nested if-then-else rule using maximum of 1 and quantity value,
-# wrap the value in new net_price element and append it after price
+# wrap the value in new net_price element and append it after price element
 target = "payments/invoices/invoice/invoice_lines/line/price"
 keep = true
 value = "q = max(1, quantity); if(p > 7.8, btto / q / 1.081, if(p > 2.4, btto / q / 1.026, btto / q))"
@@ -103,7 +103,7 @@ decimal_places = "2"
 [[transformations]] #2b
 # if the quantity element is missing, calculate net price from gross price
 # according to nested if-then-else rule,
-# wrap the value in new net_price element and append it after price
+# wrap the value in new net_price element and append it after price element
 target = "payments/invoices/invoice/invoice_lines/line/price"
 keep = true
 value = "if(p > 7.8, btto / 1.081, if(p > 2.4, btto / 1.026, btto))"
