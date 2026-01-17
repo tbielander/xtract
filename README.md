@@ -53,7 +53,7 @@ The general **`settings`** include the following entries:
 - `history_size`: a numerical field setting the history storage period in days.
 - `consistency_check`: a boolean field indicating whether the filter and split settings shall be checked for consistency. The aim of the consistency check is to prevent conflicting values in the `allowlist` and the `blocklist` of the filter as well as inconsistencies regarding the interaction of the filter and split settings that could lead to undesirable results in the output files.
 - `inconsistency_notification`: a boolean field indicating whether users shall be notified of possible inconsistency warnings by email.
-- `dirs`: a list indicating the paths to the local storage locations. The XML file in the `original` directory is filtered, transformed and split into separate files that are temporarily stored in the `tranformed` directory before they are moved to the date-related subfolder in the `history` directory.
+- `dirs`: a list indicating the paths to the local storage locations. The XML file in the `original` directory is filtered, transformed and split into separate files that are temporarily stored in the `transformed` directory before they are moved to the date-related subfolder in the `history` directory.
 - `timeformats`: timestamp formats for the `history` subfolders and for the names of the transformed XML files.
 - `email`: settings of the SMTP server and details of the message dispatch.
 
